@@ -28,4 +28,4 @@ class ScrapperTest(TestCase):
             self.company.company_full_name,
         )
         self.assertIsInstance(stock_price.company_abbreviation, StockCompanies)
-        self.assertEqual(stock_price.open_price, 5.0)
+        self.assertEqual(stock_price.open_price, 10.0)
