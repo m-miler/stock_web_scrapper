@@ -18,3 +18,13 @@ def update_stock_prices(*args: tuple[any, ...], **kwargs: any) -> None:
     for abbreviation in companies:
         company = abbreviation.get("company_abbreviation")
         Scrapper().save_data(company, start_day)
+
+
+@shared_task
+def update_companies() -> None:
+    """
+    Function to update the companies in database.
+    :return:None
+    """
+    pass
+

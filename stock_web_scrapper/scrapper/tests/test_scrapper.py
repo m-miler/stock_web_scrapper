@@ -29,3 +29,7 @@ class ScrapperTest(TestCase):
         )
         self.assertIsInstance(stock_price.company_abbreviation, StockCompanies)
         self.assertEqual(stock_price.open_price, 10.0)
+
+    def test_if_update_company_creates_correct_request(self):
+        data = self.scrapper.get_companies_data()
+        self.assertIsInstance(data, list)

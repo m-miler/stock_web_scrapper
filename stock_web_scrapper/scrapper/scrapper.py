@@ -1,13 +1,26 @@
 # import datetime
 
 import requests
-from celery import shared_task
 
+from bs4 import BeautifulSoup
 from .models.companies import StockCompanies
 from .models.prices import StockPrices
 
 
 class Scrapper:
+
+    def get_companies_data(self) -> list[str]:
+        url = "https://www.gpw.pl/spolki"
+        request = requests.get(url)
+        companies_table = BeautifulSoup(request.text, "html.parser").\
+            find(lambda tag: tag.name == 'table' and tag.has_attr('id') and tag['id'] == 'lista-spolek')
+        companies = companies_table.findAll(lambda tag: tag.name == 'tr')
+
+        for company in companies:
+            company_name = company.find_all('a')
+            company_name = company.find(attrs={'class': 'name'}).find(text=True).strip()
+            ticker = company.find(attrs={'class': 'name'}).find('span').text.strip()
+        return companies
 
     def get_stock_data(self, company: str, start_day) -> list[str]:
         """
