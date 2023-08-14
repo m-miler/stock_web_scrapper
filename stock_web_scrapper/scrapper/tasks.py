@@ -17,7 +17,7 @@ def update_stock_prices(*args: tuple[any, ...], **kwargs: any) -> None:
 
     for abbreviation in companies:
         company = abbreviation.get("company_abbreviation")
-        Scrapper().save_data(company, start_day)
+        Scrapper().save_price_data(company, start_day)
 
 
 @shared_task
