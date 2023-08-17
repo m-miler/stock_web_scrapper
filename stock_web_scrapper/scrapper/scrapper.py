@@ -9,20 +9,9 @@ from .models.prices import StockPrices
 
 class Scrapper:
 
-    def get_companies_table(self) -> bs4.Tag:
-        url: str = "https://www.gpw.pl/spolki"
-        request = requests.get(url)
-        companies_table = BeautifulSoup(request.text, "html.parser").\
-            find(lambda tag: tag.name == 'table' and tag.has_attr('id') and tag['id'] == 'lista-spolek')
-
-        return companies_table
-
-    def _split_index_raw_text(self, text: str) -> str:
-        return ",".join([x.strip() for x in text.split('\n\n\n')[2].split(",")])
-
     def companies_html_parser(self) -> list[tuple[str, str, str]]:
         companies_list: list = []
-        data = self.get_companies_table()
+        data = self._get_companies_table()
         companies = data.findAll(lambda tag: tag.name == 'tr')
 
         for company in companies[1:]:
@@ -33,6 +22,19 @@ class Scrapper:
             companies_list.append(company_info)
 
         return companies_list
+
+        # TODO -> To scrap more pages with "show more button java script code" we need to use selenium
+
+    def _get_companies_table(self) -> bs4.Tag:
+        url: str = "https://www.gpw.pl/spolki"
+        request = requests.get(url)
+        companies_table = BeautifulSoup(request.text, "html.parser").\
+            find(lambda tag: tag.name == 'table' and tag.has_attr('id') and tag['id'] == 'lista-spolek')
+
+        return companies_table
+
+    def _split_index_raw_text(self, text: str) -> str:
+        return ";".join([x.strip() for x in text.split('\n\n\n')[2].split("|")[1].split(",")])
 
     def save_or_update_companies_data(self, company_data: tuple) -> None:
         entity: StockCompanies = StockCompanies(

@@ -10,7 +10,8 @@ from ..models.companies import StockCompanies
 class ScrapperTest(TestCase):
     def setUp(self) -> None:
         self.date = "20230801"
-        self.company = StockCompanies.objects.create(company_full_name="CD Project", company_abbreviation="CDR", index="WIG20")
+        self.company = StockCompanies.objects.create(
+            company_full_name="CD Project", company_abbreviation="CDR", index="WIG20")
         self.scrapper = Scrapper()
 
     def test_if_get_stock_data_make_a_correct_request(self):
@@ -32,8 +33,13 @@ class ScrapperTest(TestCase):
         self.assertEqual(stock_price.open_price, 10.0)
 
     def test_if_get_companies_table_create_a_correct_request(self):
-        data = self.scrapper.get_companies_table()
+        data = self.scrapper._get_companies_table()
         self.assertIsInstance(data, bs4.Tag)
 
-    def test_companies_html_parser(self):
+    @patch.object(Scrapper, 'companies_html_parser',
+                  return_value=[('AMICA SPÓŁKA AKCYJNA', '(AMC)', 'WIG140, sWIG80TR, WIG-Poland, sWIG80, WIG')])
+    def test_companies_html_parser(self, companies_html_parser):
         data = self.scrapper.companies_html_parser()
+        self.assertIsInstance(data, list)
+        self.assertEqual(data[0][0], 'AMICA SPÓŁKA AKCYJNA')
+        self.assertEqual(data[0][1], '(AMC)')
