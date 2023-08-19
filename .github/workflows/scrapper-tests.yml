@@ -25,4 +25,5 @@ jobs:
           pip install -r requirements.txt
       - name: Run Tests
         run: |
+          working-directory: ./stock_web_scrapper
           python manage.py test
