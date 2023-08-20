@@ -15,10 +15,10 @@ class ScrapperTest(TestCase):
         self.scrapper = Scrapper()
 
     def test_if_get_stock_data_make_a_correct_request(self):
-        data = self.scrapper.get_stock_data(self.company.company_abbreviation, self.date)
+        data = self.scrapper._get_stock_data(self.company.company_abbreviation, self.date)
         self.assertIsInstance(data, list)
 
-    @patch.object(Scrapper, 'get_stock_data', return_value=["2023-08-01", "10.0", "15.0", "5.0", "12.5", "100"])
+    @patch.object(Scrapper, '_get_stock_data', return_value=["2023-08-01", "10.0", "15.0", "5.0", "12.5", "100"])
     def test_if_a_new_entity_is_created_in_db(self, get_stock_data):
 
         self.scrapper.save_price_data(self.company.company_abbreviation, self.date)
@@ -32,14 +32,8 @@ class ScrapperTest(TestCase):
         self.assertIsInstance(stock_price.company_abbreviation, StockCompanies)
         self.assertEqual(stock_price.open_price, 10.0)
 
-    def test_if_get_companies_table_create_a_correct_request(self):
-        data = self.scrapper._get_companies_table()
-        self.assertIsInstance(data, bs4.Tag)
-
-    @patch.object(Scrapper, 'companies_html_parser',
-                  return_value=[('AMICA SPÓŁKA AKCYJNA', '(AMC)', 'WIG140, sWIG80TR, WIG-Poland, sWIG80, WIG')])
-    def test_companies_html_parser(self, companies_html_parser):
+    def test_companies_html_parser(self):
         data = self.scrapper.companies_html_parser()
         self.assertIsInstance(data, list)
-        self.assertEqual(data[0][0], 'AMICA SPÓŁKA AKCYJNA')
-        self.assertEqual(data[0][1], '(AMC)')
+        self.assertEqual(data[0][0], '11 BIT STUDIOS SPÓŁKA AKCYJNA')
+        self.assertEqual(data[0][1], '11B')

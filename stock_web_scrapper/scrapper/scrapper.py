@@ -1,42 +1,69 @@
 # import datetime
 import bs4
 import requests
+import time
 
 from bs4 import BeautifulSoup
 from .models.companies import StockCompanies
 from .models.prices import StockPrices
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 
 class Scrapper:
 
     def companies_html_parser(self) -> list[tuple[str, str, str]]:
+        """
+        Function with web scrapping code to get the companies information data.
+        :return: list[tuple[str, str, str]]
+        """
         companies_list: list = []
         data = self._get_companies_table()
         companies = data.findAll(lambda tag: tag.name == 'tr')
 
         for company in companies[1:]:
             company_name: str = company.find(attrs={'class': 'name'}).find(text=True).strip()
-            ticker: str = company.find(attrs={'class': 'name'}).find('span').text.strip()
-            index: str = self._split_index_raw_text(company.text)
+            ticker: str = company.find(attrs={'class': 'name'}).find('span').text.strip()[1:4]
+            index: str = self._split_index(company.text)
             company_info: tuple[str, str, str] = (company_name, ticker, index)
             companies_list.append(company_info)
 
         return companies_list
 
-        # TODO -> To scrap more pages with "show more button java script code" we need to use selenium
-
     def _get_companies_table(self) -> bs4.Tag:
+        """
+        Method to get full companies list from GPW website.
+        :return: bs4.Tag
+        """
         url: str = "https://www.gpw.pl/spolki"
-        request = requests.get(url)
-        companies_table = BeautifulSoup(request.text, "html.parser").\
+        driver = webdriver.Chrome()
+        driver.get(url)
+        time.sleep(3)
+
+        companies_number = int(driver.find_element(By.ID, 'count-all').text)
+        data_limit = int(driver.find_element(By.CLASS_NAME, 'more').get_attribute('data-limit'))
+        click_limit = int(round((companies_number - data_limit) / data_limit, 0))
+
+        for i in range(1, click_limit):
+            show_more = driver.find_element(By.XPATH, "//*[contains(text(), 'Pokaż więcej ')]")
+            driver.execute_script("arguments[0].click();", show_more)
+            time.sleep(3)
+
+        request = driver.page_source
+        companies_table = BeautifulSoup(request, "html.parser").\
             find(lambda tag: tag.name == 'table' and tag.has_attr('id') and tag['id'] == 'lista-spolek')
 
         return companies_table
 
-    def _split_index_raw_text(self, text: str) -> str:
+    def _split_index(self, text: str) -> str:
         return ";".join([x.strip() for x in text.split('\n\n\n')[2].split("|")[1].split(",")])
 
     def save_or_update_companies_data(self, company_data: tuple) -> None:
+        """
+        Function to save web scrapped data to the companies table in database.
+        :param company_data: companies info data
+        :return: None
+        """
         entity: StockCompanies = StockCompanies(
             company_full_name=company_data[0],
             company_abbreviation=company_data[1],
@@ -44,7 +71,7 @@ class Scrapper:
         )
         entity.save()
 
-    def get_stock_data(self, company: str, start_day) -> list[str]:
+    def _get_stock_data(self, company: str, start_day) -> list[str]:
         """
         Function with web scrapping code to get the stock price data.
         :param company: Company abbreviation passed from celery task
@@ -56,7 +83,7 @@ class Scrapper:
         stock_data = response[1].split(",")
         return stock_data
 
-    def save_price_data(self, company: str, start_day) -> None:
+    def save_price_data(self, company: str, start_day: str) -> None:
         """
         Function to save web scrapped data to the stock_price database.
         :param company: company abbreviation passed from celery task
@@ -64,7 +91,7 @@ class Scrapper:
         :return: None
         """
 
-        date, open_price, max_price, min_price, close_price, volume = self.get_stock_data(company, start_day)
+        date, open_price, max_price, min_price, close_price, volume = self._get_stock_data(company, start_day)
         company: StockCompanies = StockCompanies.objects.get(company_abbreviation=company)
 
         entity = StockPrices(
