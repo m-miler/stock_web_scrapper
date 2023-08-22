@@ -9,6 +9,6 @@ env = environ.Env(
     DB_NAME=(str, "postgres"),
     DB_USER=(str, "postgres"),
     DB_PASSWORD=(str, "postgres"),
-    DB_HOST=(str, "db"),
+    DB_HOST=(str, "localhost"),
     DB_PORT=(str, "5432"),
 )
