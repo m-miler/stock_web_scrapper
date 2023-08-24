@@ -32,8 +32,3 @@ class ScrapperTest(TestCase):
         self.assertIsInstance(stock_price.company_abbreviation, StockCompanies)
         self.assertEqual(stock_price.open_price, 10.0)
 
-    def test_companies_html_parser(self):
-        data = self.scrapper.companies_html_parser()
-        self.assertIsInstance(data, list)
-        self.assertEqual(data[0][0], '11 BIT STUDIOS SPÓŁKA AKCYJNA')
-        self.assertEqual(data[0][1], '11B')

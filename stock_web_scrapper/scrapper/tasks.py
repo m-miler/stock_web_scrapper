@@ -16,15 +16,18 @@ def update_stock_prices(*args: tuple[any, ...], **kwargs: any) -> None:
     start_day = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y%m%d")
 
     for abbreviation in companies:
-        company = abbreviation.get("company_abbreviation")
+        company: str = abbreviation.get("company_abbreviation")
         Scrapper().save_price_data(company, start_day)
 
 
-@shared_task
 def update_companies() -> None:
     """
     Function to update the companies in database.
     :return:None
     """
-    pass
+    scrapper: Scrapper = Scrapper()
+    companies: list[tuple[str, str, str]] = scrapper.companies_html_parser()
+
+    for company in companies:
+        scrapper.save_or_update_companies_data(company)
 
