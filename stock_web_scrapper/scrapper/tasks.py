@@ -20,6 +20,7 @@ def update_stock_prices(*args: tuple[any, ...], **kwargs: any) -> None:
         Scrapper().save_price_data(company, start_day)
 
 
+@shared_task
 def update_companies() -> None:
     """
     Function to update the companies in database.

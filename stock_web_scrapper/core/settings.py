@@ -15,6 +15,7 @@ from pathlib import Path
 
 import environ
 from .env import env
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,3 +144,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CELERY_BROKER_URL = env("CELERY_BROKER")
+CELERY_RESULT_BACKEND = env("CELERY_BROKER")
+# CELERY_BEAT_SCHEDULE = {
+#     "price_db_update": {
+#         "task": "stocks.tasks.update_stock_prices",
+#         "schedule": crontab(minute=0, hour=0, day_of_week="2-6"),
+#         "options": {"expires": 15.0},
+#     },
+# }
