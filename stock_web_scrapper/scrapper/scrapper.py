@@ -64,12 +64,11 @@ class Scrapper:
         :param company_data: companies info data
         :return: None
         """
-        entity: StockCompanies = StockCompanies(
+        obj, created = StockCompanies.objects.update_or_create(
             company_full_name=company_data[0],
             company_abbreviation=company_data[1],
             index=company_data[2]
         )
-        entity.save()
 
     def _get_stock_data(self, company: str, start_day) -> list[str]:
         """

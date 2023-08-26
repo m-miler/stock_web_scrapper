@@ -11,4 +11,6 @@ env = environ.Env(
     DB_PASSWORD=(str, "postgres"),
     DB_HOST=(str, "localhost"),
     DB_PORT=(str, "5432"),
+    # Celery
+    CELERY_BROKER=(str, "redis://redis:6379/0"),
 )
