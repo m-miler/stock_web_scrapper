@@ -1,0 +1,34 @@
+version: "3"
+services:
+  web:
+    build: .
+    container_name: stock_api
+    command:
+      bash -c "cd stock_web_scrapper && python
+
+  celery_worker:
+    build: .
+    restart: always
+    container_name: stock_api_worker
+    command:
+      bash -c " cd stock_web_scrapper && celery -A core worker --loglevel=INFO -P eventlet "
+
+    volumes:
+      - .:/app
+    links:
+      - web
+    depends_on:
+      - web
+
+  celery_beat:
+    build: .
+    restart: always
+    container_name: stock_api_beat
+    command:
+      bash -c " cd stock_web_scrapper && celery -A core beat "
+    volumes:
+      - .:/app
+    links:
+      - web
+    depends_on:
+      - web
