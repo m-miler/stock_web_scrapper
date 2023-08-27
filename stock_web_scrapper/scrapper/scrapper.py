@@ -1,4 +1,3 @@
-# import datetime
 import bs4
 import requests
 import time
@@ -70,16 +69,29 @@ class Scrapper:
             index=company_data[2]
         )
 
-    def _get_stock_data(self, company: str, start_day) -> list[str]:
+    def error_logger(self, company:str, start_day: str) -> None:
+        with open('scrapper/logs/error_log.txt', 'a') as file:
+            file.write(f'{company} - {start_day}')
+            file.write('\n')
+
+    def get_stock_data(self, company: str, start_day) -> list[str]:
         """
         Function with web scrapping code to get the stock price data.
         :param company: Company abbreviation passed from celery task
         :param start_day: Date from which we want to get data
         :return: list[str]
         """
-        url = f"https://stooq.pl/q/d/l/?s={company}&d1={start_day}&d2={start_day}&i=d"
-        response = requests.get(url=url).content.decode("utf-8").strip().split("\r\n")
-        stock_data = response[1].split(",")
+
+        try:
+
+            url = f"https://stooq.pl/q/d/l/?s={company}&d1={start_day}&d2={start_day}&i=d"
+            response = requests.get(url=url).content.decode("utf-8").strip().split("\r\n")
+            stock_data = response[1].split(",")
+
+        except IndexError or TimeoutError:
+            self.error_logger(company, start_day)
+            stock_data = []
+
         return stock_data
 
     def save_price_data(self, company: str, start_day: str) -> None:
@@ -90,16 +102,17 @@ class Scrapper:
         :return: None
         """
 
-        date, open_price, max_price, min_price, close_price, volume = self._get_stock_data(company, start_day)
-        company: StockCompanies = StockCompanies.objects.get(company_abbreviation=company)
+        data = self.get_stock_data(company, start_day)
 
-        entity = StockPrices(
-            company_abbreviation=company,
-            date=date,
-            open_price=open_price,
-            max_price=max_price,
-            min_price=min_price,
-            close_price=close_price,
-            volume=volume
-        )
-        entity.save()
+        if data:
+            date, open_price, max_price, min_price, close_price, volume = self.get_stock_data(company, start_day)
+            company: StockCompanies = StockCompanies.objects.get(company_abbreviation=company)
+            obj, created = StockPrices.objects.update_or_create(
+                company_abbreviation=company,
+                date=date,
+                open_price=open_price,
+                max_price=max_price,
+                min_price=min_price,
+                close_price=close_price,
+                volume=volume
+            )
