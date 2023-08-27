@@ -1,4 +1,5 @@
 import datetime
+import time
 
 from celery import shared_task
 from .scrapper import Scrapper
@@ -16,8 +17,8 @@ def update_stock_prices(*args: tuple[any, ...], **kwargs: any) -> None:
     start_day = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y%m%d")
 
     for abbreviation in companies:
-        company: str = abbreviation.get("company_abbreviation")
-        Scrapper().save_price_data(company, start_day)
+        time.sleep(3)
+        Scrapper().save_price_data(abbreviation, start_day)
 
 
 @shared_task

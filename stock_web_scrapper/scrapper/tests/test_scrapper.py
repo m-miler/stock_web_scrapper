@@ -15,10 +15,10 @@ class ScrapperTest(TestCase):
         self.scrapper = Scrapper()
 
     def test_if_get_stock_data_make_a_correct_request(self):
-        data = self.scrapper._get_stock_data(self.company.company_abbreviation, self.date)
+        data = self.scrapper.get_stock_data(self.company.company_abbreviation, self.date)
         self.assertIsInstance(data, list)
 
-    @patch.object(Scrapper, '_get_stock_data', return_value=["2023-08-01", "10.0", "15.0", "5.0", "12.5", "100"])
+    @patch.object(Scrapper, 'get_stock_data', return_value=["2023-08-01", "10.0", "15.0", "5.0", "12.5", "100"])
     def test_if_a_new_entity_is_created_in_db(self, get_stock_data):
 
         self.scrapper.save_price_data(self.company.company_abbreviation, self.date)
