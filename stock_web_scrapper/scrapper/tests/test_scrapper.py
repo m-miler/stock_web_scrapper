@@ -1,7 +1,5 @@
 import bs4
-import responses
 from django.test import TestCase
-from requests.exceptions import ConnectTimeout
 from datetime import datetime
 from unittest.mock import patch
 from ..scrapper import Scrapper
