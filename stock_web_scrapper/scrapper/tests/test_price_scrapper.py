@@ -1,6 +1,5 @@
 import os
 import requests
-import responses
 
 from decimal import Decimal
 from django.test import TestCase
