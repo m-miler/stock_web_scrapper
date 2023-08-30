@@ -1,35 +1,26 @@
-import datetime
-import time
-
 from celery import shared_task
-from .scrapper import Scrapper
 from .models.companies import StockCompanies
+from .scrappers.companies import CompaniesScrapper
+from .scrappers.prices import PriceScrapper
 
 
 @shared_task
-def update_stock_prices(*args: tuple[any, ...], **kwargs: any) -> None:
+def update_stock_prices() -> None:
     """
     Celery task to web scrapping stock prices for each company in a stock database.
     Task starts automatically at 24 o'clock and get data form the previous day.
     """
 
     companies = StockCompanies.objects.values_list("company_abbreviation", flat=True)
-    start_day = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y%m%d")
 
     for abbreviation in companies:
-        time.sleep(3)
-        Scrapper().save_price_data(abbreviation, start_day)
+        PriceScrapper(ticker=abbreviation).save()
 
 
 @shared_task
 def update_companies() -> None:
     """
     Function to update the companies in database.
-    :return:None
+    :return: None
     """
-    scrapper: Scrapper = Scrapper()
-    companies: list[tuple[str, str, str]] = scrapper.companies_html_parser()
-
-    for company in companies:
-        scrapper.save_or_update_companies_data(company)
-
+    CompaniesScrapper().update()
