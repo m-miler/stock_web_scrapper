@@ -1,10 +1,23 @@
 version: "3"
 services:
-  web:
+  api:
     build: .
     container_name: stock_api
     command:
-      bash -c "cd stock_web_scrapper && python
+      bash -c "cd stock_web_scrapper && python manage.py runserver 0.0.0.0:8080"
+    ports:
+      - "8080:8080"
+    networks:
+      - local-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    command: redis-server
+    ports:
+      - "6379:6379"
+    networks:
+      - local-network
 
   celery_worker:
     build: .
@@ -12,13 +25,8 @@ services:
     container_name: stock_api_worker
     command:
       bash -c " cd stock_web_scrapper && celery -A core worker --loglevel=INFO -P eventlet "
-
-    volumes:
-      - .:/app
-    links:
-      - web
-    depends_on:
-      - web
+    networks:
+      - local-network
 
   celery_beat:
     build: .
@@ -26,9 +34,10 @@ services:
     container_name: stock_api_beat
     command:
       bash -c " cd stock_web_scrapper && celery -A core beat "
-    volumes:
-      - .:/app
-    links:
-      - web
-    depends_on:
-      - web
+    networks:
+      - local-network
+
+networks:
+  local-network:
+    name: container_network
+    external: true
