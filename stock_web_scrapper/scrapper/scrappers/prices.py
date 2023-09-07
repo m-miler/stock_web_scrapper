@@ -1,3 +1,4 @@
+import datetime
 import requests
 import time
 
@@ -12,7 +13,8 @@ class PriceScrapper:
             ticker: str,
             start=None,
             end=None,
-            pause=1
+            pause=1,
+            request_limit=None
     ):
         self.ticker = ticker
         start, end = sanitize_dates(start, end)
@@ -20,10 +22,12 @@ class PriceScrapper:
         self.end = end
         self.pause = pause
         self.url = f"https://stooq.pl/q/d/l/?s={self.ticker}&d1={self.start}&d2={self.end}&i=d"
+        self.request_counter = 0
+        self.request_limit = request_limit
 
     def save(self) -> None:
         """
-        Function to save web scrapped data to the stock_price database.
+        Method to save web scrapped data to the database.
         :return: None
         """
 
@@ -44,9 +48,13 @@ class PriceScrapper:
             )
 
     def _get_response(self) -> requests.Response or list:
-
+        """
+        Method to get response from website.
+        :return: requests.Response or list
+        """
         response = requests.get(url=self.url, timeout=3)
         if response.status_code == requests.codes.OK and response.text != 'Brak danych':
+            self._requests_counter()
             return response
         else:
             self._error_logger(response.status_code, response.text)
@@ -54,7 +62,7 @@ class PriceScrapper:
 
     def _get_stock_data(self) -> list[str]:
         """
-        Function with web scrapping code to get the stock price data.
+        Method with web scrapping code to get the stock price data.
         :return: list[str]
         """
         response = self._get_response()
@@ -65,10 +73,39 @@ class PriceScrapper:
         return response
 
     def _error_logger(self, status_code, text) -> None:
+        """
+        Method to log errors during prices saving for easier identification of incorrect records.
+        :param: status_code: response status code
+        :param: text: response content text
+        :return: None
+        """
         with open(f'scrapper/logs/error_log_{self.start}.txt', 'a') as file:
             file.write(f'Ticker: {self.ticker}; Date: {self.start}; StatusCode: {status_code}; Reason: {text}')
             file.write('\n')
 
     @staticmethod
     def _response_parser(data: requests.Response) -> list[str]:
+        """
+        Method to parse the response content to list of strings.
+        :return: list[str]
+        """
         return data.content.decode("utf-8").strip().split("\r\n")[1].split(",")
+
+    def _requests_counter(self) -> None:
+        """
+        Method to count number of requestes.
+        :return: None
+        """
+        self.request_counter += 1
+        if self.request_counter == self.request_limit:
+            self._sleep_until_midnight()
+
+    @staticmethod
+    def _sleep_until_midnight() -> None:
+        """
+        Staticmethod to sleep script until next day midnight in case of website request limitation policy.
+        :return: None
+        """
+        today = datetime.datetime.today()
+        next_day = datetime.datetime(today.year, today.month, today.day, 0, 0) + datetime.timedelta(days=1)
+        time.sleep((next_day - today).total_seconds())
