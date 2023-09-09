@@ -1,4 +1,5 @@
-from .views import Companies, Prices
+from .views.companies import Companies
+from .views.prices import Prices
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
