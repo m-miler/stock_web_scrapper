@@ -1,10 +1,13 @@
 import datetime
 import requests
 import time
+import logging
 
 from ..models.companies import StockCompanies
 from ..models.prices import StockPrices
 from ..utils import sanitize_dates
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 
 
 class PriceScrapper:
@@ -13,29 +16,40 @@ class PriceScrapper:
             ticker: str,
             start=None,
             end=None,
-            pause=1,
+            interval: str = "d",
+            pause: int = 1,
             request_limit=None
     ):
         self.ticker = ticker
         start, end = sanitize_dates(start, end)
         self.start = start
         self.end = end
+        self.interval = interval
         self.pause = pause
-        self.url = f"https://stooq.pl/q/d/l/?s={self.ticker}&d1={self.start}&d2={self.end}&i=d"
+        self.url = \
+            f"https://stooq.pl/q/{self.interval}/l/?s={self.ticker}&d1={self.start}&d2={self.end}&i={self.interval}"
         self.request_counter = 0
         self.request_limit = request_limit
 
-    def save(self) -> None:
+    def save_stock_price(self) -> Response:
         """
         Method to save web scrapped data to the database.
         :return: None
         """
 
-        data = self._get_stock_data()
+        data: list[str] = self._get_stock_data()
         time.sleep(self.pause)
 
+        if len(data) > 0:
+            for item in data[1:]:
+                self._save_to_db(item)
+                return Response(status=HTTP_200_OK)
+        return Response(status=HTTP_204_NO_CONTENT)
+
+    def _save_to_db(self, data: str):
+
         if data:
-            date, open_price, max_price, min_price, close_price, volume = data
+            date, open_price, max_price, min_price, close_price, volume = data.split(',')
             company: StockCompanies = StockCompanies.objects.get(company_abbreviation=self.ticker)
             obj, created = StockPrices.objects.update_or_create(
                 company_abbreviation=company,
@@ -57,7 +71,7 @@ class PriceScrapper:
             self._requests_counter()
             return response
         else:
-            self._error_logger(response.status_code, response.text)
+            logging.debug(response.text)
             return []
 
     def _get_stock_data(self) -> list[str]:
@@ -78,11 +92,11 @@ class PriceScrapper:
         Method to parse the response content to list of strings.
         :return: list[str]
         """
-        return data.content.decode("utf-8").strip().split("\r\n")[1].split(",")
+        return data.content.decode("utf-8").strip().split("\r\n")
 
     def _requests_counter(self) -> None:
         """
-        Method to count number of requestes.
+        Method to count number of requests.
         :return: None
         """
         self.request_counter += 1

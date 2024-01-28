@@ -43,7 +43,7 @@ class PriceScrapperTest(TestCase):
 
     def test_if_a_new_price_entry_is_created_in_db(self):
 
-        self.price_scrapper.save()
+        self.price_scrapper.save_stock_price()
         stock_price = StockPrices.objects.get(
             company_abbreviation=self.company, date=datetime.strptime(self.date, "%Y%m%d").strftime("%Y-%m-%d")
         )
