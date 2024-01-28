@@ -72,17 +72,6 @@ class PriceScrapper:
 
         return response
 
-    def _error_logger(self, status_code, text) -> None:
-        """
-        Method to log errors during prices saving for easier identification of incorrect records.
-        :param: status_code: response status code
-        :param: text: response content text
-        :return: None
-        """
-        with open(f'scrapper/logs/error_log_{self.start}.txt', 'a') as file:
-            file.write(f'Ticker: {self.ticker}; Date: {self.start}; StatusCode: {status_code}; Reason: {text}')
-            file.write('\n')
-
     @staticmethod
     def _response_parser(data: requests.Response) -> list[str]:
         """

@@ -152,10 +152,36 @@ REST_FRAMEWORK = {
 
 CELERY_BROKER_URL = env("CELERY_BROKER")
 CELERY_RESULT_BACKEND = env("CELERY_BROKER")
-CELERY_BEAT_SCHEDULE = {
-    "prices_update": {
-        "task": "scrapper.tasks.update_stock_prices",
-        "schedule": crontab(minute=0, hour=0, day_of_week="2-6"),
-        "options": {"expires": 15.0},
+# CELERY_BEAT_SCHEDULE = {
+#     "prices_update": {
+#         "task": "scrapper.tasks.update_stock_prices",
+#         "schedule": crontab(minute=0, hour=0, day_of_week="2-6"),
+#         "options": {"expires": 15.0},
+#     },
+# }
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "formatter": "verbose",
+            "filename": os.path.join(BASE_DIR, "scrapper/logs/debug.log"),
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
     },
 }

@@ -33,12 +33,6 @@ class PriceScrapperTest(TestCase):
         self.assertNotEquals(response, [])
         self.assertEqual(response.status_code, requests.codes.OK)
 
-    def test_if_get_response_log_errors(self):
-        scrapper = PriceScrapper(ticker='XXX', start=self.date)
-        response = scrapper._get_response()
-        self.assertEqual(response, [])
-        self.assertTrue(self.file_exists(f'scrapper/logs/error_log_{self.date}.txt'))
-
     @patch.object(PriceScrapper,
                   '_get_response',
                   return_value=[]
