@@ -29,8 +29,8 @@ class PriceScrapperTest(TestCase):
         return os.path.exists(path)
 
     def test_if_get_response_make_a_correct_request(self):
-        response = self.price_scrapper._get_response()
-        self.assertNotEquals(response, [])
+        response = self.price_scrapper._get_response(self.url)
+        self.assertNotEqual(response, [])
         self.assertEqual(response.status_code, requests.codes.OK)
 
     @patch.object(PriceScrapper,
@@ -38,7 +38,7 @@ class PriceScrapperTest(TestCase):
                   return_value=[]
                   )
     def test_if_get_stock_data_return_empty_list(self, _get_response):
-        data = self.price_scrapper._get_stock_data()
+        data = self.price_scrapper._get_stock_data(self.url)
         self.assertEqual(data, [])
 
     def test_if_a_new_price_entry_is_created_in_db(self):
