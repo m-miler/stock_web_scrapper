@@ -1,0 +1,61 @@
+version: "3"
+
+services:
+  api:
+    build:
+      context: ../
+      dockerfile: ./devOps/dev.Dockerfile
+
+    container_name: stock_api
+    command:
+      bash -c "python manage.py runserver 0.0.0.0:8080"
+    ports:
+      - "8080:8080"
+    networks:
+      - local-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    command: redis-server
+    ports:
+      - "6379:6379"
+    networks:
+      - local-network
+
+  celery_worker:
+    build:
+      context: ../
+      dockerfile: ./devOps/dev.Dockerfile
+
+    restart: always
+    container_name: stock_api_worker
+    command:
+      bash -c "celery -A core worker --loglevel=INFO -P eventlet "
+    networks:
+      - local-network
+
+  celery_beat:
+    build:
+      context: ../
+      dockerfile: ./devOps/dev.Dockerfile
+
+    restart: always
+    container_name: stock_api_beat
+    command:
+      bash -c "celery -A core beat "
+    networks:
+      - local-network
+
+  db:
+    image: postgres
+    restart: always
+    container_name: stocks_db
+    env_file:
+      - db.prod.env
+    networks:
+      - local-network
+
+networks:
+  local-network:
+    name: stock_local_network
