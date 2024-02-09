@@ -121,6 +121,8 @@ celerybeat.pid
 
 # Environments
 stock_web_scrapper/.env
+devOps/db.prod.env
+stock_web_scrapper/prod.env
 .venv
 env/
 venv/

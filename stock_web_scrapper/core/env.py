@@ -13,4 +13,5 @@ env = environ.Env(
     DB_PORT=(str, "5432"),
     # Celery
     CELERY_BROKER=(str, "redis://redis:6379/0"),
+    ALLOWED_HOSTS=(list, []),
 )
