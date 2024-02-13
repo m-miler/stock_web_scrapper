@@ -26,8 +26,6 @@ class PriceScrapper:
         self.end = end
         self.interval = interval
         self.pause = pause
-        self.url = \
-            f"https://stooq.pl/q/{self.interval}/l/?s={self.ticker}&d1={self.start}&d2={self.end}&i={self.interval}"
         self.request_counter = 0
         self.request_limit = request_limit
 
