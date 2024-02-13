@@ -10,12 +10,26 @@ from selenium.webdriver.common.by import By
 class CompaniesScrapper:
 
     def __init__(self):
-        self.url: str = "https://www.gpw.pl/spolki"
-        self.show_more_txt: str = "//*[contains(text(), 'Pokaż więcej ')]"
-        self.driver: webdriver.Chrome = webdriver.Chrome()
-        self.driver.get(self.url)
-        self.companies_list: list = []
+        self.url: str = "https://www.gpw.pl/list-of-companies"
+        self.show_more_txt: str = "//*[contains(text(), 'Show more ')]"
 
+    def _prepare_webdriver(self) -> webdriver:
+        options: webdriver.ChromeOptions = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
+        options.add_argument('--disable-dev-shm-using')
+        options.add_argument("--remote-debugging-port=9222")
+        options.add_argument("--no-sandbox")
+        driver: webdriver = webdriver.Chrome(options=options)
+        driver.get(self.url)
+
+        try:
+            cookies = driver.find_element(By.ID, "onetrust-accept-btn-handler")
+            driver.execute_script("arguments[0].click();", cookies)
+        except:
+            pass
+
+        return driver
     def update(self):
         self._get_companies()
         for company in self.companies_list:
