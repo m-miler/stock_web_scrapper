@@ -5,7 +5,7 @@ from ..serializers.prcies import PricesSerializer
 from ..filters.prices import PricesFilters
 
 
-class Prices (ListModelMixin, GenericViewSet):
+class PricesList (ListModelMixin, GenericViewSet):
     queryset = StockPrices.objects.all()
     serializer_class = PricesSerializer
     filterset_class = PricesFilters
