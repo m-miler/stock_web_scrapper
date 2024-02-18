@@ -66,7 +66,7 @@ services:
     restart: always
     container_name: stocks_db
     env_file:
-      - db.prod.env
+      - db.dev.env
     networks:
       - local-network
 
