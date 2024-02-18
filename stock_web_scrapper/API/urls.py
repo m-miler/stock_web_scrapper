@@ -6,10 +6,10 @@ from django.urls import re_path, path, include
 
 router = DefaultRouter()
 router.register(r"companies", Companies, basename="companies")
-router.register(r"prices", PricesList, basename="prices-list")
+router.register(r"prices", PricesList, basename="prices")
 
 urlpatterns = [
     path("", include(router.urls)),
-    re_path(r'stock/update/$',
-            Scrapper.as_view({'get': 'stock_update'}))
+    re_path(r'stocks/update/$',
+            Scrapper.as_view({'get': 'stock_update'}), name='stock-update'),
 ]
