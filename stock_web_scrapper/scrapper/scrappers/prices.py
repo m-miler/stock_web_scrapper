@@ -44,7 +44,7 @@ class PriceScrapper:
             if len(data) > 0:
                 for item in data[1:]:
                     self._save_to_db(item, ticker)
-                    return Response(status=HTTP_200_OK)
+                return Response(status=HTTP_200_OK)
             return Response(status=HTTP_204_NO_CONTENT)
 
     def _save_to_db(self, data: str, ticker: str):
