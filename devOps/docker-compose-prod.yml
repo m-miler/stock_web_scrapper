@@ -1,29 +1,28 @@
 version: "3"
-
 services:
-  api:
+  stock_api:
     build:
       context: ../
-      dockerfile: ./devOps/dev.Dockerfile
-
+      dockerfile: ./devOps/prod.Dockerfile
     container_name: stock_api
-    ports:
-      - "8080:8080"
-    networks:
-      - local-network
+    command:
+      bash -c "gunicorn --bind 0.0.0.0:8000 core.wsgi:application"
+    restart: always
+    expose:
+      - "8000"
     depends_on:
       - db
-      - chrome
-      - celery_worker
+    networks:
+      - nginx_network
+      - local-network
 
-  chrome:
-    image: selenium/standalone-chrome:latest
-    container_name: chrome
-    hostname: chrome
-    privileged: true
-    shm_size: 2g
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    command: redis-server
     ports:
-      - "4444:4444"
+      - "6379:6379"
     networks:
       - local-network
 
@@ -31,11 +30,10 @@ services:
     build:
       context: ../
       dockerfile: ./devOps/celery.Dockerfile
-
     restart: always
     container_name: stock_api_worker
     command:
-      bash -c "celery -A core worker --loglevel=INFO -P eventlet "
+      bash -c "celery -A core worker -P eventlet "
     networks:
       - local-network
 
@@ -43,20 +41,10 @@ services:
     build:
       context: ../
       dockerfile: ./devOps/celery.Dockerfile
-
     restart: always
-    container_name: stock_api_beat
+    container_name: stock_api_worker
     command:
-      bash -c "celery -A core beat "
-    networks:
-      - local-network
-
-  redis:
-    image: redis:latest
-    container_name: redis
-    command: redis-server
-    ports:
-      - "6379:6379"
+      bash -c "celery -A core worker -P eventlet "
     networks:
       - local-network
 
@@ -65,13 +53,16 @@ services:
     restart: always
     container_name: stocks_db
     env_file:
-      - db.dev.env
+      - db.prod.env
     volumes:
-      -  pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     networks:
       - local-network
 
 networks:
+  nginx_network:
+    external: true
   local-network:
+
 volumes:
   pgdata:

@@ -6,7 +6,7 @@ from .scrappers.prices import PriceScrapper
 
 
 @shared_task
-def update_stock_prices(ticker: str,
+def update_stock_prices(ticker: str | list,
                         start_date: str,
                         end_date: str,
                         interval: str) -> Response:
