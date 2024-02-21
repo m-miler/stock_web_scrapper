@@ -66,9 +66,12 @@ services:
     container_name: stocks_db
     env_file:
       - db.dev.env
+    volumes:
+      -  pgdata:/var/lib/postgresql/data
     networks:
       - local-network
 
 networks:
   local-network:
-    name: stock_local_network
+volumes:
+  pgdata:
