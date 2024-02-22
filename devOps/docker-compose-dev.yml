@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  api:
+  stock_api:
     build:
       context: ../
       dockerfile: ./devOps/dev.Dockerfile
@@ -60,7 +60,7 @@ services:
     networks:
       - local-network
 
-  db:
+  stocks_db:
     image: postgres
     restart: always
     container_name: stocks_db
