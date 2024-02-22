@@ -50,17 +50,20 @@ class PriceScrapper:
     def _save_to_db(self, data: str, ticker: str):
 
         if data:
-            date, open_price, max_price, min_price, close_price, volume = data.split(',')
-            company: StockCompanies = StockCompanies.objects.get(company_abbreviation=ticker)
-            obj, created = StockPrices.objects.update_or_create(
-                company_abbreviation=company,
-                date=date,
-                open_price=open_price,
-                max_price=max_price,
-                min_price=min_price,
-                close_price=close_price,
-                volume=volume
-            )
+            try:
+                date, open_price, max_price, min_price, close_price, volume = data.split(',')
+                company: StockCompanies = StockCompanies.objects.get(company_abbreviation=ticker)
+                obj, created = StockPrices.objects.update_or_create(
+                    company_abbreviation=company,
+                    date=date,
+                    open_price=open_price,
+                    max_price=max_price,
+                    min_price=min_price,
+                    close_price=close_price,
+                    volume=volume
+                )
+            except Exception as error:
+                logging.error(error)
 
     def _get_response(self, url: str) -> requests.Response or list:
         """
