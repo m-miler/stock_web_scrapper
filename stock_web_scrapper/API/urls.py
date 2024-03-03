@@ -12,4 +12,5 @@ urlpatterns = [
     path("", include(router.urls)),
     re_path(r'stocks/update/$',
             Scrapper.as_view({'get': 'stock_update'}), name='stock-update'),
+    re_path(r'prices/last-price/$', PricesList.as_view({'get': 'get_last_price'}), name='stock-last-price')
 ]
