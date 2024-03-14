@@ -3,8 +3,9 @@ from rest_framework.viewsets import GenericViewSet
 from scrapper.models.prices import StockPrices
 from ..serializers.prcies import PricesSerializer
 from ..filters.prices import PricesFilters
-from django.http.response import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.http.response import JsonResponse
+
 
 class PricesList (ListModelMixin, GenericViewSet):
     queryset = StockPrices.objects.all()
@@ -18,7 +19,8 @@ class PricesList (ListModelMixin, GenericViewSet):
         try:
             last_price = StockPrices.objects.filter(
                 company_abbreviation=request.query_params.get('ticker')).latest('date')
-        except ObjectDoesNotExist:
-            return JsonResponse({'last_price': 0})
+            serializer = self.get_serializer(last_price)
+            return JsonResponse(serializer.data)
 
-        return JsonResponse({'last_price': last_price.close_price})
+        except ObjectDoesNotExist:
+            return JsonResponse({})
