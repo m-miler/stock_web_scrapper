@@ -31,4 +31,6 @@ git clone https://github.com/m-miler/stock_web_scrapper.git
 ```
 
 > [!NOTE]
-> At startup the application runs companies update function, which can take a while to update. 
+> To add company names and/or indexes to the database, update_company and populate_indexes command 
+> from manage.py needs to be triggerd manually inside container using **exec**.  
+`docker exec -it <container_id> python manage.py update_company/populate_indexes`
