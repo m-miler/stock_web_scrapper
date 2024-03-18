@@ -10,8 +10,8 @@ from selenium.webdriver.common.by import By
 class CompaniesScrapper:
 
     def __init__(self):
-        self.url: str = "https://www.gpw.pl/list-of-companies"
-        self.show_more_txt: str = "//*[contains(text(), 'Show more ')]"
+        self.url: str = "https://www.gpw.pl/spolki"
+        self.show_more_txt: str = "//*[contains(text(), 'Pokaż więcej ')]"
 
     def _prepare_webdriver(self) -> webdriver:
         options: webdriver.ChromeOptions = webdriver.ChromeOptions()
@@ -44,9 +44,8 @@ class CompaniesScrapper:
         :return: None
         """
         obj, created = StockCompanies.objects.update_or_create(
-            company_full_name=company_info['company_name'],
             company_abbreviation=company_info['ticker'],
-            index=company_info['index']
+            defaults={"company_full_name": company_info['company_name'], "index":company_info['index']}
         )
 
     def _get_companies(self) -> list[dict]:
