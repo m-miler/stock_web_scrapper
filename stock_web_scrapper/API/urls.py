@@ -16,5 +16,6 @@ urlpatterns = [
             Scrapper.as_view({'get': 'stock_update'}), name='stock-update'),
     re_path(r'prices/last-price/$', PricesList.as_view({'get': 'get_last_price'}), name='stock-last-price'),
     re_path(r'indexes/update/$',
-            Scrapper.as_view({'get': 'index_result_update'}), name='index-result-update')
+            Scrapper.as_view({'get': 'index_result_update'}), name='index-result-update'),
+    re_path(r'indexes/last-price/$', PricesList.as_view({'get': 'get_index_result'}), name='index-last-result'),
 ]

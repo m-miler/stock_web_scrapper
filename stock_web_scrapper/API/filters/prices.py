@@ -5,4 +5,5 @@ from scrapper.models.prices import StockPrices
 class PricesFilters(FilterSet):
     class Meta:
         model = StockPrices
-        fields = ["date", 'company_abbreviation']
+        fields = {"date": ['exact'],
+                  'company_abbreviation': ['in', 'exact']}
