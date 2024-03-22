@@ -178,7 +178,7 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.FileHandler",
             "formatter": "verbose",
-            "filename": os.path.join(BASE_DIR, "scrapper/logs/debug.log"),
+            "filename": os.path.join(BASE_DIR, "logs/debug.log"),
         },
     },
     "loggers": {
