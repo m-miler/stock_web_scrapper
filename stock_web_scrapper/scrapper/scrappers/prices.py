@@ -33,18 +33,18 @@ class PriceScrapper:
         Method to save web scrapped data to the database.
         :return: None
         """
-        for ticker in self.ticker:
+        for i, ticker in enumerate(self.ticker):
             data: list[str] = self._get_stock_data(self._set_url(ticker=ticker))
             time.sleep(self.pause)
 
             if len(data) > 0:
                 for item in data[1:]:
                     self._save_to_db(item, ticker)
-                return True
-            return False
+
+            if i == len(self.ticker)-1: return True
+        return False
 
     def _save_to_db(self, data: str, ticker: str):
-
         if data:
             try:
                 date, open_price, max_price, min_price, close_price, volume = data.split(',')
@@ -52,12 +52,14 @@ class PriceScrapper:
                 obj, created = StockPrices.objects.update_or_create(
                     company_abbreviation=company,
                     date=date,
-                    open_price=open_price,
-                    max_price=max_price,
-                    min_price=min_price,
-                    close_price=close_price,
-                    volume=volume
+                    defaults={
+                    'open_price':open_price,
+                    'max_price':max_price,
+                    'min_price':min_price,
+                    'close_price':close_price,
+                    'volume':volume}
                 )
+
             except Exception as error:
                 logging.error(error)
 
