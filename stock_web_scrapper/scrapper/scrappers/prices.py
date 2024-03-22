@@ -2,13 +2,9 @@ import datetime
 import requests
 import time
 import logging
-
 from ..models.companies import StockCompanies
 from ..models.prices import StockPrices
 from ..utils import sanitize_dates
-from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
-
 
 class PriceScrapper:
     def __init__(
@@ -32,7 +28,7 @@ class PriceScrapper:
     def _set_url(self, ticker: str) -> str:
         return f"https://stooq.pl/q/{self.interval}/l/?s={ticker}&d1={self.start}&d2={self.end}&i={self.interval}"
 
-    def save_stock_price(self) -> Response:
+    def save_stock_price(self) -> bool:
         """
         Method to save web scrapped data to the database.
         :return: None
@@ -44,8 +40,8 @@ class PriceScrapper:
             if len(data) > 0:
                 for item in data[1:]:
                     self._save_to_db(item, ticker)
-                return Response(status=HTTP_200_OK)
-            return Response(status=HTTP_204_NO_CONTENT)
+                return True
+            return False
 
     def _save_to_db(self, data: str, ticker: str):
 

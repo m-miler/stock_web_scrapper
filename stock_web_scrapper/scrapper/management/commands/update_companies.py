@@ -6,4 +6,4 @@ class Command(BaseCommand):
     help = 'Populate database with stock companies name from GPW site.'
 
     def handle(self, *args, **options):
-        update_companies()
+        update_companies.apply_async()
