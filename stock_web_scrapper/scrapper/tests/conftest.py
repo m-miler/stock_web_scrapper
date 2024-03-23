@@ -7,7 +7,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from .factories import CompanyFactory, StockPriceFactory
 
 def run_sql(sql):
-    conn = psycopg2.connect(database='stocks', user='postgres', password='postgres', host='postgres')
+    conn = psycopg2.connect(database='stocks', user='postgres', password='postgres', host='localhost')
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
     cur.execute(sql)
@@ -18,13 +18,13 @@ def run_sql(sql):
 def django_db_setup(django_db_blocker):
     from django.conf import settings
 
-    settings.DATABASES['default']['NAME'] = 'the_copied_db'
+    settings.DATABASES['default']['NAME'] = 'stocks'
     settings.DATABASES['default']['USER'] = 'postgres'
     settings.DATABASES['default']['PASSWORD'] = 'postgres'
-    settings.DATABASES['default']['HOST'] = 'postgres'
+    settings.DATABASES['default']['HOST'] = 'localhost'
 
-    run_sql('DROP DATABASE IF EXISTS the_copied_db')
-    run_sql('CREATE DATABASE the_copied_db')
+    run_sql('DROP DATABASE IF EXISTS stocks')
+    run_sql('CREATE DATABASE stocks')
     with django_db_blocker.unblock():
         call_command('migrate', '--noinput')
     yield
