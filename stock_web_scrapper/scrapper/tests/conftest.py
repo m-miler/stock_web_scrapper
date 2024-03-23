@@ -7,7 +7,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from .factories import CompanyFactory, StockPriceFactory
 
 def run_sql(sql):
-    conn = psycopg2.connect(database='stocks', user='postgres', password='postgres', host='localhost')
+    conn = psycopg2.connect(database='stocks', user='postgres', password='postgres', host='postgres')
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = conn.cursor()
     cur.execute(sql)
