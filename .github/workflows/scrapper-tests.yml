@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - main
-      -
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,7 +17,7 @@ jobs:
       postgres:
         image: postgres:12.5
         env:
-          POSTGRES_DB: stocks
+          POSTGRES_DB: postgres
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
