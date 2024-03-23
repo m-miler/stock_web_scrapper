@@ -23,7 +23,7 @@ def django_db_setup(django_db_blocker):
     settings.DATABASES['default']['PASSWORD'] = 'postgres'
     settings.DATABASES['default']['HOST'] = 'localhost'
 
-    run_sql('DROP DATABASE IF EXISTS stocks')
+    # run_sql('DROP DATABASE IF EXISTS stocks')
     run_sql('CREATE DATABASE stocks')
     with django_db_blocker.unblock():
         call_command('migrate', '--noinput')
@@ -32,7 +32,7 @@ def django_db_setup(django_db_blocker):
     for connection in connections.all():
         connection.close()
 
-    run_sql('DROP DATABASE the_copied_db')
+    run_sql('DROP DATABASE stocks')
 
 
 @pytest.fixture
