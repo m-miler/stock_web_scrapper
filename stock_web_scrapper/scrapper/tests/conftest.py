@@ -21,7 +21,7 @@ def django_db_setup(django_db_blocker):
     settings.DATABASES['default']['NAME'] = 'the_copied_db'
     settings.DATABASES['default']['USER'] = 'postgres'
     settings.DATABASES['default']['PASSWORD'] = 'postgres'
-    settings.DATABASES['default']['HOST'] = 'localhost'
+    settings.DATABASES['default']['HOST'] = 'postgres'
 
     run_sql('DROP DATABASE IF EXISTS the_copied_db')
     run_sql('CREATE DATABASE the_copied_db')
